@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>米国経済指標カレンダー</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--bg:#f5f6f8;--card:#fff;--tx:#1a1d23;--mu:#667085;--bd:#e4e7ec;--ac:#1d4ed8;--acb:#dbeafe;
+--c3:#b91c1c;--c3b:#fee2e2;--c2:#a15c07;--c2b:#fef3c7;--c1:#475569;--c1b:#e8ecf1;--hol:#f3f4f6}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+--bg:#0f1218;--card:#181c24;--tx:#e7eaf0;--mu:#98a2b3;--bd:#2a303c;--ac:#7aa2ff;--acb:#1e2c4d;
+--c3:#fca5a5;--c3b:#4a1d1d;--c2:#fcd34d;--c2b:#43330c;--c1:#b6c0cf;--c1b:#2a313d;--hol:#1f242d}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1218;--card:#181c24;--tx:#e7eaf0;--mu:#98a2b3;--bd:#2a303c;--ac:#7aa2ff;--acb:#1e2c4d;--c3:#fca5a5;--c3b:#4a1d1d;--c2:#fcd34d;--c2b:#43330c;--c1:#b6c0cf;--c1b:#2a313d;--hol:#1f242d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:1.25rem;margin:0 0 2px}
+.sub{color:var(--mu);font-size:.8rem;margin:0 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.bar .sp{flex:1}
+button,.chk{font:inherit;color:var(--tx)}
+.btn{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.9rem}
+.btn:hover{border-color:var(--ac)}
+.btn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+@media (prefers-color-scheme:dark){.btn.on{color:#0f1218}}
+#ttl{font-size:1.15rem;font-weight:700;min-width:7.5em;text-align:center}
+.chk{display:inline-flex;gap:4px;align-items:center;font-size:.85rem;padding:4px 8px;border:1px solid var(--bd);border-radius:999px;background:var(--card);cursor:pointer}
+.seg{display:inline-flex}.seg .btn{border-radius:0;padding:5px 10px}.seg .btn:first-child{border-radius:8px 0 0 8px}.seg .btn:last-child{border-radius:0 8px 8px 0;border-left:0}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.wd{background:var(--card);text-align:center;font-size:.75rem;padding:6px 0;color:var(--mu);font-weight:600}
+.cell{background:var(--card);min-height:104px;padding:4px;text-align:left;border:0;cursor:pointer;display:block;width:100%;font-size:.7rem;overflow:hidden}
+.cell.out{opacity:.4}.cell.hol{background:var(--hol)}
+.cell.today .dn{background:var(--ac);color:#fff;border-radius:999px}
+@media (prefers-color-scheme:dark){.cell.today .dn{color:#0f1218}}
+.cell.sel{outline:2px solid var(--ac);outline-offset:-2px}
+.dn{display:inline-block;min-width:1.6em;text-align:center;font-weight:700;font-size:.8rem}
+.hn{color:var(--mu);font-size:.65rem;margin-left:2px}
+.ch{display:block;border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch b{font-weight:600;margin-right:3px}
+.i3{background:var(--c3b);color:var(--c3)}.i2{background:var(--c2b);color:var(--c2)}.i1{background:var(--c1b);color:var(--c1)}
+.more{color:var(--mu);font-size:.65rem;margin-top:2px}
+.leg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--mu);margin:10px 0 18px}
+.lst h2{font-size:1rem;margin:0 0 8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.day{background:var(--card);border:1px solid var(--bd);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.day>h3{margin:0;padding:8px 12px;font-size:.9rem;background:var(--hol);border-bottom:1px solid var(--bd)}
+.row{display:grid;grid-template-columns:84px 52px 1fr;gap:8px;padding:8px 12px;border-top:1px solid var(--bd);align-items:start}
+.row:first-of-type{border-top:0}
+.tm{font-variant-numeric:tabular-nums;font-weight:600}
+.st{font-size:.8rem;letter-spacing:-1px}
+.s3{color:var(--c3)}.s2{color:var(--c2)}.s1{color:var(--c1)}
+.nm{font-weight:600}.ds{color:var(--mu);font-size:.8rem}
+.tag{font-size:.65rem;border:1px solid var(--bd);border-radius:4px;padding:0 4px;margin-left:6px;color:var(--mu);font-weight:400}
+.empty{color:var(--mu);padding:20px;text-align:center;background:var(--card);border:1px dashed var(--bd);border-radius:10px}
+.note{color:var(--mu);font-size:.75rem;margin-top:18px;line-height:1.7}
+.note a{color:var(--ac)}
+@media (max-width:640px){
+ .wrap{padding:10px}.cell{min-height:58px;padding:3px}
+ .ch{display:inline-block;width:8px;height:8px;padding:0;margin:2px 2px 0 0;border-radius:50%}
+ .ch.i3{background:var(--c3)}.ch.i2{background:var(--c2)}.ch.i1{background:var(--c1)}
+ .ch span{display:none}.more{display:none}.hn{display:none}
+ .row{grid-template-columns:70px 1fr}.row .st{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>米国経済指標カレンダー</h1>
+ <p class="sub">投資家向け・毎月の主要な米国経済指標とFOMC。日付をタップすると詳細を表示します。</p>
+
+ <div class="bar">
+  <button class="btn" id="prev" aria-label="前の月">‹</button>
+  <div id="ttl"></div>
+  <button class="btn" id="next" aria-label="次の月">›</button>
+  <button class="btn" id="today">今月</button>
+  <span class="sp"></span>
+  <span class="seg" role="group" aria-label="時刻表示">
+   <button class="btn on" id="tzj">日本時間</button><button class="btn" id="tze">米国東部時間</button>
+  </span>
+ </div>
+ <div class="bar" id="flt"></div>
+
+ <div class="cal" id="cal"></div>
+ <div class="leg">
+  <span><b class="s3">★★★</b> 相場への影響大</span><span><b class="s2">★★</b> 注目</span><span><b class="s1">★</b> 参考</span>
+  <span id="tznote"></span>
+ </div>
+
+ <section class="lst" id="lst"></section>
+
+ <p class="note">
+  ※ 「公式確認済」の指標は、毎週自動で公式の発表予定を取得して反映しています（<span id="upd">更新情報なし</span>）。それ以外は過去の公表パターンから算出した<b>目安</b>です。政府機関の都合などで変更されることがあるため、投資判断の前に必ず公式の発表予定でご確認ください。
+  FOMCは2026年分を内蔵し、以降は自動取得分を反映します。祝日は米国連邦祝日（債券市場・多くの指標の休止日）です。
+  公式: <a href="https://www.bls.gov/schedule/news_release/" target="_blank" rel="noopener">BLS（雇用・物価）</a> /
+  <a href="https://www.bea.gov/news/schedule" target="_blank" rel="noopener">BEA（GDP・PCE）</a> /
+  <a href="https://www.federalreserve.gov/monthlyreview/fomccalendars.htm" target="_blank" rel="noopener">FRB（FOMC）</a>。
+  本ページは情報提供を目的としており、投資助言ではありません。
+ </p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), pad=n=>String(n).padStart(2,'0');
+const key=(y,m,d)=>{const t=new Date(y,m,d);return `${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`};
+const WD='日月火水木金土';
+const nthDow=(y,m,dow,n)=>{
+  if(n>0){const f=new Date(y,m,1).getDay();return 1+((dow-f+7)%7)+(n-1)*7}
+  const l=new Date(y,m+1,0);return l.getDate()-((l.getDay()-dow+7)%7)};
+
+/* 米国連邦祝日 */
+const HOL={};
+for(let y=2024;y<=2032;y++){
+  const fx=(m,d,n)=>{const w=new Date(y,m,d).getDay();HOL[key(y,m,w==0?d+1:w==6?d-1:d)]=n};
+  const fl=(m,dow,n,name)=>{HOL[key(y,m,nthDow(y,m,dow,n))]=name};
+  fx(0,1,'元日');fl(0,1,3,'MLK記念日');fl(1,1,3,'大統領の日');fl(4,1,-1,'メモリアルデー');
+  fx(5,19,'ジューンティーンス');fx(6,4,'独立記念日');fl(8,1,1,'レイバーデー');fl(9,1,2,'コロンバスデー');
+  fx(10,11,'退役軍人の日');fl(10,4,4,'感謝祭');fx(11,25,'クリスマス');
+}
+const isBiz=(y,m,d)=>{const t=new Date(y,m,d),w=t.getDay();return w>0&&w<6&&!HOL[key(y,m,d)]};
+const nb=(y,m,d)=>{while(!isBiz(y,m,d))d++;return d};
+const pb=(y,m,d)=>{while(!isBiz(y,m,d))d--;return d};
+const nthBiz=(y,m,n)=>{let d=0,c=0;while(c<n){d++;if(isBiz(y,m,d))c++}return d};
+
+/* FOMC 2026（決定発表日） */
+const FOMC=['2026-01-28','2026-03-18','2026-04-29','2026-06-17','2026-07-29','2026-09-16','2026-10-28','2026-12-09'];
+
+/* 自動更新データ（data/events.json は GitHub Actions が毎週更新） */
+let DATA={events:[]},IND={};
+const IDP=[['雇用統計','nfp'],['ADP','adp'],['JOLTS','jolts'],['ISM製造業','ism_m'],['ISM非製造業','ism_s'],['貿易収支','trade'],['消費者物価','cpi'],['生産者物価','ppi'],['小売売上高','retail'],['鉱工業生産','ip'],['住宅着工','housing'],['ミシガン大学消費者態度指数（速報）','umich_p'],['ミシガン大学消費者態度指数（確報）','umich_f'],['中古住宅','existing'],['CB消費者','cb'],['耐久財','durable'],['実質GDP','gdp'],['個人所得','pce'],['新規失業保険','claims'],['FOMC政策金利','fomc'],['FOMC議事録','minutes']];
+
+/* 月ごとの指標を生成 */
+function events(y,m){
+  const E=[],dim=new Date(y,m+1,0).getDate();
+  const add=(d,n,t,i,ds,est=true)=>{const dt=new Date(y,m,d);if(dt.getMonth()!==m||d<1||d>dim)return;E.push({d,id:(IDP.find(x=>n.startsWith(x[0]))||[])[1],n,t,i,ds,est})};
+  const addDate=(dt,...a)=>{if(dt.getFullYear()===y&&dt.getMonth()===m)add(dt.getDate(),...a)};
+
+  // 雇用統計: 前月12日を含む週の土曜 + 20日（金曜）
+  const ref=new Date(y,m-1,12), sat=new Date(y,m-1,12+(6-ref.getDay()));
+  let nfp=new Date(sat.getFullYear(),sat.getMonth(),sat.getDate()+20);
+  if(!isBiz(nfp.getFullYear(),nfp.getMonth(),nfp.getDate()))nfp=new Date(nfp.getFullYear(),nfp.getMonth(),nfp.getDate()+7);
+  const sh=n=>new Date(nfp.getFullYear(),nfp.getMonth(),nfp.getDate()+n);
+  addDate(nfp,'雇用統計（非農業部門雇用者数・失業率）','08:30',3,'最重要指標。雇用者数の増減・失業率・平均時給が利下げ観測と株・為替・金利を大きく動かします。');
+  addDate(sh(-2),'ADP雇用統計','08:30',2,'民間の雇用者数。雇用統計の先行指標として参照されます。');
+  addDate(sh(-3),'JOLTS求人件数','10:00',2,'労働需給の逼迫度を示し、FRBが重視する指標のひとつ。');
+
+  // ISM
+  add(nthBiz(y,m,1),'ISM製造業景況指数','10:00',3,'50が景気の分かれ目。新規受注・価格指数も注目されます。',false);
+  add(nthBiz(y,m,3),'ISM非製造業（サービス業）景況指数','10:00',2,'米経済の約8割を占めるサービス業の景況感。');
+  add(nb(y,m,5),'貿易収支','08:30',1,'輸出入の差額。GDPの純輸出に影響します。');
+
+  // 物価
+  const cpi=nb(y,m,12);
+  add(cpi,'消費者物価指数（CPI）','08:30',3,'インフレ指標の中心。コア（食品・エネルギー除く）の前月比・前年比が焦点です。');
+  add(nb(y,m,cpi+1),'生産者物価指数（PPI）','08:30',2,'卸売段階の物価。CPIの先行・補完指標。');
+
+  // 消費・生産・住宅
+  add(nb(y,m,15),'小売売上高','08:30',3,'個人消費の動向を示す月次指標。コントロールグループがGDP算出に使われます。');
+  add(nb(y,m,17),'鉱工業生産・設備稼働率','09:15',2,'製造業・鉱業・公益事業の生産動向。');
+  add(nb(y,m,18),'住宅着工件数・建設許可件数','08:30',1,'住宅市場と金利感応度の高い建設活動の指標。');
+  add(pb(y,m,nthDow(y,m,5,2)),'ミシガン大学消費者態度指数（速報）','10:00',2,'消費者心理と1年先・5〜10年先のインフレ期待が注目されます。');
+  add(nthDow(y,m,5,4),'ミシガン大学消費者態度指数（確報）','10:00',1,'速報値からの修正を確認。');
+  add(nb(y,m,22),'中古住宅販売件数','10:00',1,'住宅ローン金利の影響を受ける住宅市場の指標。');
+  add(pb(y,m,nthDow(y,m,2,-1)),'CB消費者信頼感指数','10:00',2,'雇用環境への見方を含む消費者マインド。');
+  add(nb(y,m,26),'耐久財受注','08:30',2,'設備投資の先行指標。コア資本財受注に注目。');
+
+  // GDP / PCE
+  const q=m%3;
+  add(pb(y,m,nthDow(y,m,4,-1)),
+    q===0?'実質GDP（速報値）':q===1?'実質GDP（改定値）':'実質GDP（確定値）','08:30',q===0?3:q===1?2:1,
+    q===0?'四半期の成長率の最初の公表値。市場の注目度が高い。':'前回からの改定内容を確認。');
+  add(pb(y,m,nthDow(y,m,5,-1)),'個人所得・消費支出／PCEデフレーター','08:30',3,'FRBが物価目標の基準とするPCE。コアPCEが特に重要です。');
+
+  // 毎週の新規失業保険申請件数
+  for(let d=nthDow(y,m,4,1);d<=dim;d+=7)add(pb(y,m,d),'新規失業保険申請件数','08:30',2,'毎週木曜の雇用の先行指標。',false);
+
+  // FOMC
+  FOMC.forEach(s=>{
+    const [fy,fm,fd]=s.split('-').map(Number);
+    if(fy===y&&fm-1===m){
+      const sep=[3,6,9,12].includes(fm);
+      add(fd,'FOMC政策金利発表','14:00',3,'政策金利の決定と声明。'+(sep?'経済見通し（SEP）・ドットプロットも公表。':'')+'発表後の議長会見は14:30。',false);
+    }
+    const mt=new Date(fy,fm-1,fd+21);
+    addDate(mt,'FOMC議事録','14:00',2,'3週間前の会合の議論の詳細。今後の金融政策のヒントになります。',false);
+  });
+  // 公式日程の取得結果で目安を置き換え
+  const ov=(DATA.events||[]).filter(o=>{const p=o.date.split('-').map(Number);return p[0]===y&&p[1]-1===m&&IND[o.id]});
+  if(ov.length){
+    const ids=new Set(ov.map(o=>o.id));
+    for(let k=E.length-1;k>=0;k--)if(ids.has(E[k].id))E.splice(k,1);
+    ov.forEach(o=>{const f=IND[o.id],g=o.id==='gdp',q=m%3;
+      E.push({d:+o.date.slice(8),id:o.id,n:g?f.n+['（速報値）','（改定値）','（確定値）'][q]:f.n,t:o.time||f.t,i:g?[3,2,1][q]:f.i,ds:f.ds,est:false,src:o.source})});
+  }
+  return E;
+}
+
+/* 時刻変換 */
+const isDST=(y,m,d)=>{const t=new Date(y,m,d).getTime();return t>=new Date(y,2,nthDow(y,2,0,2)).getTime()&&t<new Date(y,10,nthDow(y,10,0,1)).getTime()};
+let tz='jst';
+function fmt(e,y,m){
+  if(tz==='et')return{s:e.t,nx:false};
+  const [h,mi]=e.t.split(':').map(Number),tot=h*60+mi+(isDST(y,m,e.d)?13:14)*60;
+  const hh=Math.floor(tot/60)%24;
+  return{s:`${pad(hh)}:${pad(tot%60)}`,nx:tot>=1440};
+}
+
+/* 状態 */
+const now=new Date();
+let cur={y:now.getFullYear(),m:now.getMonth()},sel=null,show={1:true,2:true,3:true};
+
+function render(){
+  const {y,m}=cur;
+  $('#ttl').textContent=`${y}年${m+1}月`;
+  $('#tznote').textContent=tz==='jst'?`時刻は日本時間（米国は${isDST(y,m,15)?'夏時間':'標準時'}）。日付は米国の発表日基準、「翌」は日本では翌日の意味。`:'時刻は米国東部時間（ET）です。';
+  const E=events(y,m).filter(e=>show[e.i]);
+  E.forEach(e=>{e.f=fmt(e,y,m)});
+  E.sort((a,b)=>a.d-b.d||a.t.localeCompare(b.t));
+  const by={};E.forEach(e=>(by[e.d]=by[e.d]||[]).push(e));
+
+  let h=[...WD].map(w=>`<div class="wd">${w}</div>`).join('');
+  const first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();
+  const total=Math.ceil((first+dim)/7)*7;
+  for(let i=0;i<total;i++){
+    const d=i-first+1,inM=d>=1&&d<=dim,dt=new Date(y,m,d);
+    if(!inM){h+=`<div class="cell out" aria-hidden="true"><span class="dn">${dt.getDate()}</span></div>`;continue}
+    const hol=HOL[key(y,m,d)],wk=dt.getDay(),es=by[d]||[];
+    const isT=y===now.getFullYear()&&m===now.getMonth()&&d===now.getDate();
+    h+=`<button class="cell${hol||wk==0||wk==6?' hol':''}${isT?' today':''}${sel===d?' sel':''}" data-d="${d}" aria-label="${m+1}月${d}日 ${es.length}件">`
+      +`<span class="dn">${d}</span>${hol?`<span class="hn">${hol}</span>`:''}`
+      +es.slice(0,4).map(e=>`<span class="ch i${e.i}" title="${e.n}"><span><b>${e.f.s}</b>${e.n}</span></span>`).join('')
+      +(es.length>4?`<div class="more">ほか${es.length-4}件</div>`:'')+`</button>`;
+  }
+  $('#cal').innerHTML=h;
+
+  const days=Object.keys(by).map(Number).filter(d=>sel===null||d===sel);
+  let l=`<h2>${sel===null?`${m+1}月の指標一覧`:`${m+1}月${sel}日の指標`}${sel!==null?'<button class="btn" id="all">月全体を表示</button>':''}</h2>`;
+  if(!days.length)l+=`<div class="empty">表示する指標がありません${sel!==null&&HOL[key(y,m,sel)]?`（${HOL[key(y,m,sel)]}）`:''}。</div>`;
+  days.forEach(d=>{
+    const dt=new Date(y,m,d),hol=HOL[key(y,m,d)];
+    l+=`<div class="day"><h3>${m+1}月${d}日（${WD[dt.getDay()]}）${hol?` ・ 休場: ${hol}`:''}</h3>`
+      +by[d].map(e=>`<div class="row"><div class="tm">${e.f.s}${e.f.nx?'<span class="tag">翌</span>':''}</div>`
+      +`<div class="st s${e.i}" aria-label="重要度${e.i}">${'★'.repeat(e.i)}</div>`
+      +`<div><div class="nm">${e.n}${e.est?'<span class="tag">目安</span>':/^https:\/\//.test(e.src||'')?`<a class="tag" href="${e.src}" target="_blank" rel="noopener">公式確認済</a>`:''}</div><div class="ds">${e.ds}</div></div></div>`).join('')+`</div>`;
+  });
+  if(y!==2026&&!(DATA.events||[]).some(o=>o.id==='fomc'&&o.date.startsWith(y)))l+=`<div class="ds" style="margin-top:6px">※ ${y}年のFOMC日程は未収録です。</div>`;
+  $('#lst').innerHTML=l;
+}
+
+/* フィルター */
+$('#flt').innerHTML=[3,2,1].map(i=>`<label class="chk"><input type="checkbox" data-i="${i}" checked><span class="s${i}">${'★'.repeat(i)}</span></label>`).join('');
+$('#flt').addEventListener('change',e=>{show[e.target.dataset.i]=e.target.checked;render()});
+
+const go=n=>{const t=new Date(cur.y,cur.m+n,1);cur={y:t.getFullYear(),m:t.getMonth()};sel=null;render()};
+$('#prev').onclick=()=>go(-1);$('#next').onclick=()=>go(1);
+$('#today').onclick=()=>{cur={y:now.getFullYear(),m:now.getMonth()};sel=null;render()};
+const setTz=v=>{tz=v;$('#tzj').classList.toggle('on',v==='jst');$('#tze').classList.toggle('on',v==='et');render()};
+$('#tzj').onclick=()=>setTz('jst');$('#tze').onclick=()=>setTz('et');
+$('#cal').addEventListener('click',e=>{
+  const c=e.target.closest('.cell[data-d]');if(!c)return;
+  const d=+c.dataset.d;sel=sel===d?null:d;render();
+  if(sel!==null)$('#lst').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('#lst').addEventListener('click',e=>{if(e.target.id==='all'){sel=null;render()}});
+render();
+Promise.all(['data/events.json','data/indicators.json'].map(u=>fetch(u,{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.json()})))
+ .then(([d,i])=>{DATA=d;IND=i;const u=$('#upd');if(u&&d.updated)u.textContent=`最終更新 ${d.updated.slice(0,10)}`;render()})
+ .catch(()=>{});
+</script>
+</body>
+</html>
