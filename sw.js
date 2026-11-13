@@ -1,6 +1,6 @@
 // アプリ本体はオフラインでも開けるようにキャッシュ。画面とデータはネット接続時は常に最新を取得する。
-const V = 'econ-cal-v1';
-const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'data/indicators.json', 'data/events.json', 'icons/icon-192.png', 'icons/icon-512.png'];
+const V = 'econ-cal-v2';
+const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'data/indicators.json', 'data/links.json', 'data/events.json', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

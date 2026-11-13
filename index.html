@@ -60,6 +60,7 @@ button,.chk{font:inherit;color:var(--tx)}
 .s3{color:var(--c3)}.s2{color:var(--c2)}.s1{color:var(--c1)}
 .nm{font-weight:600}.ds{color:var(--mu);font-size:.8rem}
 .tag{font-size:.65rem;border:1px solid var(--bd);border-radius:4px;padding:0 4px;margin-left:6px;color:var(--mu);font-weight:400}
+.lk{margin-top:4px;display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem}.lk a{color:var(--ac);text-decoration:none}.lk a:hover{text-decoration:underline}
 .empty{color:var(--mu);padding:20px;text-align:center;background:var(--card);border:1px dashed var(--bd);border-radius:10px}
 .note{color:var(--mu);font-size:.75rem;margin-top:18px;line-height:1.7}
 .note a{color:var(--ac)}
@@ -134,7 +135,9 @@ const nthBiz=(y,m,n)=>{let d=0,c=0;while(c<n){d++;if(isBiz(y,m,d))c++}return d};
 const FOMC=['2026-01-28','2026-03-18','2026-04-29','2026-06-17','2026-07-29','2026-09-16','2026-10-28','2026-12-09'];
 
 /* 自動更新データ（data/events.json は GitHub Actions が毎週更新） */
-let DATA={events:[]},IND={};
+let DATA={events:[]},IND={},LK={};
+// 各指標の「発表結果」リンク（公式の最新発表ページ）と過去の推移（FRED）
+const lk=e=>{const l=LK[e.id];if(!l)return'';const a=(u,t)=>/^https:\/\//.test(u||'')?`<a href="${u}" target="_blank" rel="noopener">${t}</a>`:'';return `<div class="lk">${a(l.res,'📊 '+(l.rl||'発表結果（公式）'))}${a(l.hist,'📈 推移（FRED）')}</div>`};
 const IDP=[['雇用統計','nfp'],['ADP','adp'],['JOLTS','jolts'],['ISM製造業','ism_m'],['ISM非製造業','ism_s'],['貿易収支','trade'],['消費者物価','cpi'],['生産者物価','ppi'],['小売売上高','retail'],['鉱工業生産','ip'],['住宅着工','housing'],['ミシガン大学消費者態度指数（速報）','umich_p'],['ミシガン大学消費者態度指数（確報）','umich_f'],['中古住宅','existing'],['CB消費者','cb'],['耐久財','durable'],['実質GDP','gdp'],['個人所得','pce'],['新規失業保険','claims'],['FOMC政策金利','fomc'],['FOMC議事録','minutes']];
 
 /* 月ごとの指標を生成 */
@@ -256,7 +259,7 @@ function render(){
     l+=`<div class="day"><h3>${m+1}月${d}日（${WD[dt.getDay()]}）${hol?` ・ 休場: ${hol}`:''}</h3>`
       +by[d].map(e=>`<div class="row"><div><div class="tm">${e.f.s}<span class="tag">${ZN[tz]}</span>${tagN(e.f)}</div>${alt(e,y,m)}</div>`
       +`<div class="st s${e.i}" aria-label="重要度${e.i}">${'★'.repeat(e.i)}</div>`
-      +`<div><div class="nm">${e.n}${e.est?'<span class="tag">目安</span>':/^https:\/\//.test(e.src||'')?`<a class="tag" href="${e.src}" target="_blank" rel="noopener">${e.bs==='media'?'複数情報源で確認':'公式確認済'}</a>`:''}</div><div class="ds">${e.ds}</div></div></div>`).join('')+`</div>`;
+      +`<div><div class="nm">${e.n}${e.est?'<span class="tag">目安</span>':/^https:\/\//.test(e.src||'')?`<a class="tag" href="${e.src}" target="_blank" rel="noopener">${e.bs==='media'?'複数情報源で確認':'公式確認済'}</a>`:''}</div><div class="ds">${e.ds}</div>${lk(e)}</div></div>`).join('')+`</div>`;
   });
   if(y!==2026&&!(DATA.events||[]).some(o=>o.id==='fomc'&&o.date.startsWith(y)))l+=`<div class="ds" style="margin-top:6px">※ ${y}年のFOMC日程は未収録です。</div>`;
   $('#lst').innerHTML=l;
@@ -278,8 +281,8 @@ $('#cal').addEventListener('click',e=>{
 });
 $('#lst').addEventListener('click',e=>{if(e.target.id==='all'){sel=null;render()}});
 setTz(tz);
-Promise.all(['data/events.json','data/indicators.json'].map(u=>fetch(u,{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.json()})))
- .then(([d,i])=>{DATA=d;IND=i;const u=$('#upd');if(u&&d.updated)u.textContent=`最終確認 ${new Date(d.updated).toLocaleDateString('ja-JP')}`;render()})
+Promise.all(['data/events.json','data/indicators.json','data/links.json'].map(u=>fetch(u,{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.json()})))
+ .then(([d,i,l])=>{DATA=d;IND=i;LK=l;const u=$('#upd');if(u&&d.updated)u.textContent=`最終確認 ${new Date(d.updated).toLocaleDateString('ja-JP')}`;render()})
  .catch(()=>{});
 
 /* アプリ化（PWA） */
