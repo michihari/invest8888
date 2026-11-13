@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>米国経済指標カレンダー</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1d4ed8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="経済指標">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
 --bg:#f5f6f8;--card:#fff;--tx:#1a1d23;--mu:#667085;--bd:#e4e7ec;--ac:#1d4ed8;--acb:#dbeafe;
@@ -27,7 +35,7 @@ button,.chk{font:inherit;color:var(--tx)}
 @media (prefers-color-scheme:dark){.btn.on{color:#0f1218}}
 #ttl{font-size:1.15rem;font-weight:700;min-width:7.5em;text-align:center}
 .chk{display:inline-flex;gap:4px;align-items:center;font-size:.85rem;padding:4px 8px;border:1px solid var(--bd);border-radius:999px;background:var(--card);cursor:pointer}
-.seg{display:inline-flex}.seg .btn{border-radius:0;padding:5px 10px}.seg .btn:first-child{border-radius:8px 0 0 8px}.seg .btn:last-child{border-radius:0 8px 8px 0;border-left:0}
+.seg{display:inline-flex}.seg .btn{border-radius:0;padding:5px 10px}.seg .btn:first-child{border-radius:8px 0 0 8px}.seg .btn:last-child{border-radius:0 8px 8px 0}.seg .btn+.btn{border-left:0}
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
 .wd{background:var(--card);text-align:center;font-size:.75rem;padding:6px 0;color:var(--mu);font-weight:600}
 .cell{background:var(--card);min-height:104px;padding:4px;text-align:left;border:0;cursor:pointer;display:block;width:100%;font-size:.7rem;overflow:hidden}
@@ -45,7 +53,7 @@ button,.chk{font:inherit;color:var(--tx)}
 .lst h2{font-size:1rem;margin:0 0 8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .day{background:var(--card);border:1px solid var(--bd);border-radius:10px;margin-bottom:10px;overflow:hidden}
 .day>h3{margin:0;padding:8px 12px;font-size:.9rem;background:var(--hol);border-bottom:1px solid var(--bd)}
-.row{display:grid;grid-template-columns:84px 52px 1fr;gap:8px;padding:8px 12px;border-top:1px solid var(--bd);align-items:start}
+.row{display:grid;grid-template-columns:92px 52px 1fr;gap:8px;padding:8px 12px;border-top:1px solid var(--bd);align-items:start}
 .row:first-of-type{border-top:0}
 .tm{font-variant-numeric:tabular-nums;font-weight:600}
 .st{font-size:.8rem;letter-spacing:-1px}
@@ -60,7 +68,7 @@ button,.chk{font:inherit;color:var(--tx)}
  .ch{display:inline-block;width:8px;height:8px;padding:0;margin:2px 2px 0 0;border-radius:50%}
  .ch.i3{background:var(--c3)}.ch.i2{background:var(--c2)}.ch.i1{background:var(--c1)}
  .ch span{display:none}.more{display:none}.hn{display:none}
- .row{grid-template-columns:70px 1fr}.row .st{display:none}
+ .row{grid-template-columns:78px 1fr}.row .st{display:none}
 }
 </style>
 </head>
@@ -74,9 +82,10 @@ button,.chk{font:inherit;color:var(--tx)}
   <div id="ttl"></div>
   <button class="btn" id="next" aria-label="次の月">›</button>
   <button class="btn" id="today">今月</button>
+  <button class="btn" id="inst" hidden>アプリとして追加</button>
   <span class="sp"></span>
   <span class="seg" role="group" aria-label="時刻表示">
-   <button class="btn on" id="tzj">日本時間</button><button class="btn" id="tze">米国東部時間</button>
+   <button class="btn on" id="tzj">日本時間</button><button class="btn" id="tze">米国東部時間</button><button class="btn" id="tzp">シアトル時間</button>
   </span>
  </div>
  <div class="bar" id="flt"></div>
@@ -90,12 +99,12 @@ button,.chk{font:inherit;color:var(--tx)}
  <section class="lst" id="lst"></section>
 
  <p class="note">
-  ※ 「公式確認済」の指標は、毎週自動で公式の発表予定を取得して反映しています（<span id="upd">更新情報なし</span>）。それ以外は過去の公表パターンから算出した<b>目安</b>です。政府機関の都合などで変更されることがあるため、投資判断の前に必ず公式の発表予定でご確認ください。
+  ※ 「公式確認済」は公式サイトの発表予定で確認した日程、「複数情報源で確認」は公式以外の複数の情報源で確認した日程です。毎日自動で確認・更新しています（<span id="upd">更新情報なし</span>）。「目安」は過去の公表パターンから算出した<b>目安</b>です。政府機関の都合などで変更されることがあるため、投資判断の前に必ず公式の発表予定でご確認ください。
   FOMCは2026年分を内蔵し、以降は自動取得分を反映します。祝日は米国連邦祝日（債券市場・多くの指標の休止日）です。
   公式: <a href="https://www.bls.gov/schedule/news_release/" target="_blank" rel="noopener">BLS（雇用・物価）</a> /
   <a href="https://www.bea.gov/news/schedule" target="_blank" rel="noopener">BEA（GDP・PCE）</a> /
   <a href="https://www.federalreserve.gov/monthlyreview/fomccalendars.htm" target="_blank" rel="noopener">FRB（FOMC）</a>。
-  本ページは情報提供を目的としており、投資助言ではありません。
+  本ページは情報提供を目的としており、投資助言ではありません。<br>スマホではアプリとして追加できます（Android: ブラウザのメニュー →「ホーム画面に追加」／iPhone: Safariの共有ボタン →「ホーム画面に追加」）。
  </p>
 </div>
 
@@ -189,19 +198,23 @@ function events(y,m){
     const ids=new Set(ov.map(o=>o.id));
     for(let k=E.length-1;k>=0;k--)if(ids.has(E[k].id))E.splice(k,1);
     ov.forEach(o=>{const f=IND[o.id],g=o.id==='gdp',q=m%3;
-      E.push({d:+o.date.slice(8),id:o.id,n:g?f.n+['（速報値）','（改定値）','（確定値）'][q]:f.n,t:o.time||f.t,i:g?[3,2,1][q]:f.i,ds:f.ds,est:false,src:o.source})});
+      E.push({d:+o.date.slice(8),id:o.id,n:g?f.n+['（速報値）','（改定値）','（確定値）'][q]:f.n,t:o.time||f.t,i:g?[3,2,1][q]:f.i,ds:f.ds,est:false,src:o.source,bs:o.basis})});
   }
   return E;
 }
 
 /* 時刻変換 */
 const isDST=(y,m,d)=>{const t=new Date(y,m,d).getTime();return t>=new Date(y,2,nthDow(y,2,0,2)).getTime()&&t<new Date(y,10,nthDow(y,10,0,1)).getTime()};
-let tz='jst';
-function fmt(e,y,m){
-  if(tz==='et')return{s:e.t,nx:false};
-  const [h,mi]=e.t.split(':').map(Number),tot=h*60+mi+(isDST(y,m,e.d)?13:14)*60;
-  const hh=Math.floor(tot/60)%24;
-  return{s:`${pad(hh)}:${pad(tot%60)}`,nx:tot>=1440};
+let tz=(()=>{try{const v=localStorage.getItem('tz');return ['jst','et','pt'].includes(v)?v:'jst'}catch(e){return 'jst'}})();
+const ZN={jst:'JST',et:'ET',pt:'PT'};
+const tagN=f=>f.nx?'<span class="tag">翌</span>':f.pv?'<span class="tag">前日</span>':'';
+const alt=(e,y,m)=>['jst','et','pt'].filter(z=>z!==tz).map(z=>{const f=fmt(e,y,m,z);return `<div class="ds">${ZN[z]} ${f.s}${f.nx?'（翌）':f.pv?'（前日）':''}</div>`}).join('');
+function fmt(e,y,m,z=tz){
+  if(z==='et')return{s:e.t,nx:false,pv:false};
+  // 東部時間(ET)からの差: シアトル(PT)は-3時間、日本は夏時間+13時間／標準時+14時間
+  const [h,mi]=e.t.split(':').map(Number),off=z==='pt'?-3:(isDST(y,m,e.d)?13:14);
+  const tot=h*60+mi+off*60,t=((tot%1440)+1440)%1440;
+  return{s:`${pad(Math.floor(t/60))}:${pad(t%60)}`,nx:tot>=1440,pv:tot<0};
 }
 
 /* 状態 */
@@ -211,7 +224,10 @@ let cur={y:now.getFullYear(),m:now.getMonth()},sel=null,show={1:true,2:true,3:tr
 function render(){
   const {y,m}=cur;
   $('#ttl').textContent=`${y}年${m+1}月`;
-  $('#tznote').textContent=tz==='jst'?`時刻は日本時間（米国は${isDST(y,m,15)?'夏時間':'標準時'}）。日付は米国の発表日基準、「翌」は日本では翌日の意味。`:'時刻は米国東部時間（ET）です。';
+  const dst=isDST(y,m,15);
+  $('#tznote').textContent=tz==='jst'?`時刻は日本時間（米国は${dst?'夏時間':'標準時'}）。日付は米国の発表日基準、「翌」は日本では翌日の意味。`
+    :tz==='pt'?`時刻はシアトル時間（太平洋時間 ${dst?'PDT':'PST'}）。東部時間の3時間前です。`
+    :`時刻は米国東部時間（${dst?'EDT':'EST'}）です。`;
   const E=events(y,m).filter(e=>show[e.i]);
   E.forEach(e=>{e.f=fmt(e,y,m)});
   E.sort((a,b)=>a.d-b.d||a.t.localeCompare(b.t));
@@ -238,9 +254,9 @@ function render(){
   days.forEach(d=>{
     const dt=new Date(y,m,d),hol=HOL[key(y,m,d)];
     l+=`<div class="day"><h3>${m+1}月${d}日（${WD[dt.getDay()]}）${hol?` ・ 休場: ${hol}`:''}</h3>`
-      +by[d].map(e=>`<div class="row"><div class="tm">${e.f.s}${e.f.nx?'<span class="tag">翌</span>':''}</div>`
+      +by[d].map(e=>`<div class="row"><div><div class="tm">${e.f.s}<span class="tag">${ZN[tz]}</span>${tagN(e.f)}</div>${alt(e,y,m)}</div>`
       +`<div class="st s${e.i}" aria-label="重要度${e.i}">${'★'.repeat(e.i)}</div>`
-      +`<div><div class="nm">${e.n}${e.est?'<span class="tag">目安</span>':/^https:\/\//.test(e.src||'')?`<a class="tag" href="${e.src}" target="_blank" rel="noopener">公式確認済</a>`:''}</div><div class="ds">${e.ds}</div></div></div>`).join('')+`</div>`;
+      +`<div><div class="nm">${e.n}${e.est?'<span class="tag">目安</span>':/^https:\/\//.test(e.src||'')?`<a class="tag" href="${e.src}" target="_blank" rel="noopener">${e.bs==='media'?'複数情報源で確認':'公式確認済'}</a>`:''}</div><div class="ds">${e.ds}</div></div></div>`).join('')+`</div>`;
   });
   if(y!==2026&&!(DATA.events||[]).some(o=>o.id==='fomc'&&o.date.startsWith(y)))l+=`<div class="ds" style="margin-top:6px">※ ${y}年のFOMC日程は未収録です。</div>`;
   $('#lst').innerHTML=l;
@@ -253,18 +269,25 @@ $('#flt').addEventListener('change',e=>{show[e.target.dataset.i]=e.target.checke
 const go=n=>{const t=new Date(cur.y,cur.m+n,1);cur={y:t.getFullYear(),m:t.getMonth()};sel=null;render()};
 $('#prev').onclick=()=>go(-1);$('#next').onclick=()=>go(1);
 $('#today').onclick=()=>{cur={y:now.getFullYear(),m:now.getMonth()};sel=null;render()};
-const setTz=v=>{tz=v;$('#tzj').classList.toggle('on',v==='jst');$('#tze').classList.toggle('on',v==='et');render()};
-$('#tzj').onclick=()=>setTz('jst');$('#tze').onclick=()=>setTz('et');
+const setTz=v=>{tz=v;try{localStorage.setItem('tz',v)}catch(e){}['j','e','p'].forEach(k=>$('#tz'+k).classList.toggle('on',k==={jst:'j',et:'e',pt:'p'}[v]));render()};
+$('#tzj').onclick=()=>setTz('jst');$('#tze').onclick=()=>setTz('et');$('#tzp').onclick=()=>setTz('pt');
 $('#cal').addEventListener('click',e=>{
   const c=e.target.closest('.cell[data-d]');if(!c)return;
   const d=+c.dataset.d;sel=sel===d?null:d;render();
   if(sel!==null)$('#lst').scrollIntoView({behavior:'smooth',block:'start'});
 });
 $('#lst').addEventListener('click',e=>{if(e.target.id==='all'){sel=null;render()}});
-render();
+setTz(tz);
 Promise.all(['data/events.json','data/indicators.json'].map(u=>fetch(u,{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.json()})))
- .then(([d,i])=>{DATA=d;IND=i;const u=$('#upd');if(u&&d.updated)u.textContent=`最終更新 ${d.updated.slice(0,10)}`;render()})
+ .then(([d,i])=>{DATA=d;IND=i;const u=$('#upd');if(u&&d.updated)u.textContent=`最終確認 ${new Date(d.updated).toLocaleDateString('ja-JP')}`;render()})
  .catch(()=>{});
+
+/* アプリ化（PWA） */
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+let ip=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;$('#inst').hidden=false});
+addEventListener('appinstalled',()=>{$('#inst').hidden=true});
+$('#inst').onclick=async()=>{if(!ip)return;ip.prompt();try{await ip.userChoice}catch(e){}ip=null;$('#inst').hidden=true};
 </script>
 </body>
 </html>
